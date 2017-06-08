@@ -20,11 +20,12 @@ public:
     string prefix;
     string format;
     int numberWidth;
+	ofImageQualityType quality;
       
     ofxImageSequenceRecorder(){  
         counter=0;  
         numberWidth=4;
-        
+		quality = OF_IMAGE_QUALITY_BEST;
     }  
     
     void setPrefix(string pre){
@@ -42,12 +43,16 @@ public:
     void setNumberWidth(int nbwidth){
         numberWidth = nbwidth;
     }
+
+	void setQuality(ofImageQualityType qlt) {
+		quality = qlt;
+	}
        
     void threadedFunction() {    
         while(isThreadRunning()) {
             if(!q.empty()){
                 QueuedImage i = q.front();
-                ofSaveImage(i.image, i.fileName);
+                ofSaveImage(i.image, i.fileName, quality);
                 q.pop();
             }
         }
