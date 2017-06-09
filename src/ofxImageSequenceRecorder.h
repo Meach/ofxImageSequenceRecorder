@@ -5,7 +5,11 @@ http://forum.openframeworks.cc/index.php?topic=1687.0
 
 */
 
-#include "ofMain.h"    
+#include "ofMain.h"
+
+#ifdef OFX_TURBO_JPEG
+#include "ofxTurboJpeg.h"
+#endif
 
 typedef struct { 
     string fileName;    
@@ -20,12 +24,23 @@ public:
     string prefix;
     string format;
     int numberWidth;
+
+#ifdef OFX_TURBO_JPEG
+	ofxTurboJpeg turbo;	
+	int quality;
+#else
 	ofImageQualityType quality;
-      
+#endif
+
     ofxImageSequenceRecorder(){  
         counter=0;  
         numberWidth=4;
+
+#ifdef OFX_TURBO_JPEG
+		quality = 100; 
+#else
 		quality = OF_IMAGE_QUALITY_BEST;
+#endif
     }  
     
     void setPrefix(string pre){
@@ -44,15 +59,26 @@ public:
         numberWidth = nbwidth;
     }
 
+
+#ifdef OFX_TURBO_JPEG
+	void setQuality(int qlt) {
+		quality = qlt;
+	}
+#else
 	void setQuality(ofImageQualityType qlt) {
 		quality = qlt;
 	}
+#endif
        
     void threadedFunction() {    
         while(isThreadRunning()) {
             if(!q.empty()){
                 QueuedImage i = q.front();
-                ofSaveImage(i.image, i.fileName, quality);
+#ifdef OFX_TURBO_JPEG
+				turbo.save(i.image, i.fileName, quality);
+#else
+				ofSaveImage(i.image, i.fileName, quality);
+#endif
                 q.pop();
             }
         }
